@@ -76,13 +76,13 @@
     <div>
       <div class="flex justify-between items-center mb-2">
         <label class="text-sm font-medium text-gray-700">页边距</label>
-        <span class="text-xs text-gray-400">{{ styleConfig.margin || 20 }}mm</span>
+        <span class="text-xs text-gray-400">{{ styleConfig.margin || 2 }}mm</span>
       </div>
       <el-slider
-        :model-value="styleConfig.margin || 20"
-        :min="10"
-        :max="40"
-        :step="5"
+        :model-value="styleConfig.margin || 2"
+        :min="2"
+        :max="10"
+        :step="1"
         :show-tooltip="false"
         @update:model-value="updateStyle('margin', $event)"
       />

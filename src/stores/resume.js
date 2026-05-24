@@ -41,7 +41,7 @@ function createEmptyResume(templateId = 'basic') {
       fontFamily: 'default',
       fontSize: 18,
       lineHeight: 1.6,
-      margin: 20,
+      margin: 2,
       layout: 'single'
     },
     moduleOrder: [

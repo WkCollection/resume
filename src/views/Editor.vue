@@ -107,6 +107,7 @@
           <el-divider direction="vertical" />
           <el-button size="small" text @click="previewScale = 1">重置</el-button>
           <el-button size="small" text @click="previewScale = fitScale">适应宽度</el-button>
+          <el-button size="small" text @click="fitHeight">适应高度</el-button>
         </div>
         <!-- 预览内容 -->
         <div class="flex-1 overflow-auto p-6" ref="previewContainerRef">
@@ -269,7 +270,14 @@ function calcFitScale() {
   const containerWidth = container.clientWidth - 48
   const a4Width = 794
   fitScale.value = Math.round((containerWidth / a4Width) * 10) / 10
-  previewScale.value = fitScale.value
+}
+
+function fitHeight() {
+  const container = previewContainerRef.value
+  if (!container) return
+  const containerHeight = container.clientHeight - 48
+  const a4Height = 1123
+  previewScale.value = Math.round((containerHeight / a4Height) * 10) / 10
 }
 
 // 防抖自动保存
