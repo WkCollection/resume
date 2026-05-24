@@ -151,9 +151,13 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="描述">
-            <el-input v-model="item.description" type="textarea" :rows="2" placeholder="主修课程、荣誉奖项等" @input="emitUpdate" />
-          </el-form-item>
+          <div class="flex items-center mb-1">
+            <span class="text-sm text-gray-700">描述</span>
+            <el-button size="small" text type="primary" :loading="aiLoading.edu === index" @click="handleAi('education', index, item)" class="ml-auto">
+              <el-icon class="mr-0.5"><MagicStick /></el-icon>{{ item.description ? 'AI 润色' : 'AI 生成' }}
+            </el-button>
+          </div>
+          <el-input v-model="item.description" type="textarea" :rows="2" placeholder="主修课程、荣誉奖项等" @input="emitUpdate" />
         </el-form>
       </div>
       <el-empty v-if="data.education.length === 0" description="暂无教育经历" :image-size="60">
@@ -210,9 +214,12 @@
                   <el-radio-button value="edit">编辑</el-radio-button>
                   <el-radio-button value="preview">预览</el-radio-button>
                 </el-radio-group>
+                <el-button size="small" text type="primary" :loading="aiLoading.work === index" @click="handleAi('workExperience', index, item)">
+                  <el-icon class="mr-0.5"><MagicStick /></el-icon>{{ item.description ? 'AI 润色' : 'AI 生成' }}
+                </el-button>
                 <span class="text-xs text-gray-400">支持 Markdown 语法</span>
               </div>
-              <el-input v-if="getDescMode(item) !== 'preview'" v-model="item.description" type="textarea" :rows="5" placeholder="支持 Markdown 语法&#10;- 使用 **粗体** 强调关键内容&#10;- 使用 - 开头创建列表项&#10;- 使用 `代码` 标注技术名词" @input="emitUpdate" />
+              <el-input v-if="getDescMode(item) !== 'preview'" v-model="item.description" type="textarea" :rows="10" placeholder="支持 Markdown 语法&#10;- 使用 **粗体** 强调关键内容&#10;- 使用 - 开头创建列表项&#10;- 使用 `代码` 标注技术名词" @input="emitUpdate" />
               <div v-else class="markdown-preview p-3 bg-white border border-gray-200 rounded min-h-[100px] text-sm" v-html="renderMd(item.description)"></div>
             </div>
           </el-form-item>
@@ -272,9 +279,12 @@
                   <el-radio-button value="edit">编辑</el-radio-button>
                   <el-radio-button value="preview">预览</el-radio-button>
                 </el-radio-group>
+                <el-button size="small" text type="primary" :loading="aiLoading.proj === index" @click="handleAi('projects', index, item)">
+                  <el-icon class="mr-0.5"><MagicStick /></el-icon>{{ item.description ? 'AI 润色' : 'AI 生成' }}
+                </el-button>
                 <span class="text-xs text-gray-400">支持 Markdown 语法</span>
               </div>
-              <el-input v-if="getDescMode(item) !== 'preview'" v-model="item.description" type="textarea" :rows="5" placeholder="支持 Markdown 语法&#10;- 使用 **粗体** 强调关键内容&#10;- 使用 - 开头创建列表项&#10;- 使用 `代码` 标注技术名词" @input="emitUpdate" />
+              <el-input v-if="getDescMode(item) !== 'preview'" v-model="item.description" type="textarea" :rows="10" placeholder="支持 Markdown 语法&#10;- 使用 **粗体** 强调关键内容&#10;- 使用 - 开头创建列表项&#10;- 使用 `代码` 标注技术名词" @input="emitUpdate" />
               <div v-else class="markdown-preview p-3 bg-white border border-gray-200 rounded min-h-[100px] text-sm" v-html="renderMd(item.description)"></div>
             </div>
           </el-form-item>
@@ -372,9 +382,14 @@
 
     <!-- 自我评价 -->
     <section v-if="activeModule === 'selfEvaluation'" class="space-y-4">
-      <h3 class="font-semibold text-gray-900 flex items-center">
-        <el-icon class="mr-2"><ChatDotRound /></el-icon>自我评价
-      </h3>
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-gray-900 flex items-center">
+          <el-icon class="mr-2"><ChatDotRound /></el-icon>自我评价
+        </h3>
+        <el-button size="small" text type="primary" :loading="aiLoading.self" @click="handleAiSelf">
+          <el-icon class="mr-0.5"><MagicStick /></el-icon>{{ data.selfEvaluation ? 'AI 润色' : 'AI 生成' }}
+        </el-button>
+      </div>
       <el-input
         v-model="data.selfEvaluation"
         type="textarea"
@@ -387,8 +402,11 @@
 </template>
 
 <script setup>
+import { reactive } from 'vue'
 import { Delete } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { generateContent, getApiKey } from '@/services/ai'
 import { renderMarkdown } from '@/utils/markdown'
 
 const ethnicityOptions = [
@@ -449,6 +467,76 @@ function handleAvatarUpload(e) {
 function removeAvatar() {
   props.data.personalInfo.avatar = ''
   emitUpdate()
+}
+
+// AI 辅助生成
+const router = useRouter()
+const aiLoading = reactive({ edu: null, work: null, proj: null, self: false })
+
+function buildPrompt(type, item) {
+  const { personalInfo, jobIntention, skills } = props.data
+  const name = personalInfo?.name || ''
+  const position = jobIntention?.position || item.position || item.role || ''
+  const skillNames = (skills || []).map(s => s.name).filter(Boolean).join('、')
+
+  if (type === 'education') {
+    return `请为一份简历生成教育经历描述。\n学校：${item.school || '未知'}\n专业：${item.major || '未知'}\n学历：${item.degree || '未知'}\n${item.description ? `\n现有内容，请在此基础上润色优化：\n${item.description}` : '请生成主修课程、荣誉奖项等方面的描述。'}`
+  }
+  if (type === 'workExperience') {
+    return `请为一份简历生成工作经历描述。\n公司：${item.company || '未知'}\n职位：${position}\n${skillNames ? `技能：${skillNames}\n` : ''}${item.description ? `\n现有内容，请在此基础上润色优化：\n${item.description}` : '请生成典型的工作职责和业绩描述。'}`
+  }
+  if (type === 'projects') {
+    return `请为一份简历生成项目经验描述。\n项目名称：${item.name || '未知'}\n角色：${item.role || '未知'}\n${skillNames ? `技能：${skillNames}\n` : ''}${item.description ? `\n现有内容，请在此基础上润色优化：\n${item.description}` : '请生成项目背景、职责和成果的描述。'}`
+  }
+  return ''
+}
+
+async function handleAi(type, index, item) {
+  if (!getApiKey()) {
+    ElMessageBox.confirm('请先在「个人设置」中配置 DeepSeek API Key', 'AI 助手未配置', {
+      confirmButtonText: '去设置',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(() => router.push('/settings')).catch(() => {})
+    return
+  }
+  const loadingKey = type === 'education' ? 'edu' : type === 'workExperience' ? 'work' : 'proj'
+  aiLoading[loadingKey] = index
+  try {
+    const prompt = buildPrompt(type, item)
+    item.description = await generateContent(prompt)
+    emitUpdate()
+  } catch (e) {
+    ElMessage.error(e.message || 'AI 生成失败')
+  } finally {
+    aiLoading[loadingKey] = null
+  }
+}
+
+async function handleAiSelf() {
+  if (!getApiKey()) {
+    ElMessageBox.confirm('请先在「个人设置」中配置 DeepSeek API Key', 'AI 助手未配置', {
+      confirmButtonText: '去设置',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(() => router.push('/settings')).catch(() => {})
+    return
+  }
+  aiLoading.self = true
+  try {
+    const { personalInfo, jobIntention, skills, workExperience, projects } = props.data
+    const position = jobIntention?.position || ''
+    const skillNames = (skills || []).map(s => s.name).filter(Boolean).join('、')
+    const companies = (workExperience || []).map(w => w.company).filter(Boolean).join('、')
+    const existing = props.data.selfEvaluation
+    const prompt = `请为一份简历生成自我评价。\n姓名：${personalInfo?.name || ''}\n求职意向：${position}\n${skillNames ? `技能：${skillNames}\n` : ''}${companies ? `工作过的公司：${companies}\n` : ''}${existing ? `\n现有内容，请在此基础上润色优化：\n${existing}` : '请生成突出个人优势、职业素养的自我评价。'}`
+    props.data.selfEvaluation = await generateContent(prompt)
+    emitUpdate()
+  } catch (e) {
+    ElMessage.error(e.message || 'AI 生成失败')
+  } finally {
+    aiLoading.self = false
+  }
 }
 
 // 各模块的空项模板

@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <AppHeader />
+    <AppHeader v-if="!hideLayout" />
     <main class="flex-1">
       <router-view />
     </main>
-    <AppFooter />
+    <AppFooter v-if="!hideLayout" />
 
     <!-- 返回顶部 -->
     <transition name="fade">
       <div
-        v-if="showBackTop"
+        v-if="showBackTop && !hideLayout"
         class="fixed bottom-8 right-8 z-50"
       >
         <el-tooltip content="返回顶部" placement="left">
@@ -28,10 +28,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { Top } from '@element-plus/icons-vue'
 import AppHeader from './AppHeader.vue'
 import AppFooter from './AppFooter.vue'
+
+const route = useRoute()
+const hideLayout = computed(() => route.meta.noLayout)
 
 const showBackTop = ref(false)
 

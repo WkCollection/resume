@@ -1,12 +1,15 @@
 <template>
-  <div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 sticky top-16 z-40">
+  <div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 sticky top-0 z-40">
     <div class="flex items-center space-x-3">
       <el-button text @click="$router.push('/dashboard')">
         <el-icon class="mr-1"><ArrowLeft /></el-icon>返回
       </el-button>
       <el-divider direction="vertical" />
       <span class="text-sm text-gray-500">当前模板：</span>
-      <el-tag effect="plain">{{ currentTemplateName }}</el-tag>
+      <el-button size="small" effect="plain" @click="$emit('toggle-template')">
+        {{ currentTemplateName }}
+        <el-icon class="ml-1"><Switch /></el-icon>
+      </el-button>
     </div>
     <div class="flex items-center space-x-2">
       <el-tooltip content="样式设置">
@@ -31,7 +34,7 @@
 <script setup>
 import { computed } from 'vue'
 import { templates as templateList } from '@/config/templates'
-import { Grid, Brush, DataAnalysis, View, Download } from '@element-plus/icons-vue'
+import { Grid, Brush, DataAnalysis, View, Download, Switch } from '@element-plus/icons-vue'
 
 const props = defineProps({
   templateId: { type: String, default: 'basic' }

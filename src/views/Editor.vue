@@ -16,7 +16,7 @@
       <el-icon class="animate-spin text-primary-500" :size="32"><Loading /></el-icon>
     </div>
 
-    <div v-if="currentResume" class="flex h-[calc(100vh-8rem)]">
+    <div v-if="currentResume" class="flex h-[calc(100vh-3rem)]">
       <!-- 左侧编辑面板 -->
       <div class="w-full lg:w-[480px] bg-white border-r border-gray-200 flex flex-col overflow-hidden" :class="{ 'hidden lg:flex': showPreview }">
         <!-- 模块导航标签 -->
@@ -98,17 +98,28 @@
       </div>
 
       <!-- 右侧预览区域 -->
-      <div class="flex-1 overflow-y-auto p-6 bg-gray-100" :class="{ 'hidden lg:block': !showPreview }">
-        <div class="flex justify-center">
-          <div class="bg-white shadow-lg" style="width: 210mm; min-height: 297mm;">
-            <!-- 模板预览 -->
-            <component
-              :is="templateComponent"
-              :data="currentResume.modules"
-              :style-config="currentResume.style"
-              :module-order="currentResume.moduleOrder"
-              :hidden-modules="currentResume.hiddenModules"
-            />
+      <div class="flex-1 overflow-hidden flex flex-col bg-gray-100" :class="{ 'hidden lg:flex': !showPreview }">
+        <!-- 缩放控制 -->
+        <div class="flex items-center justify-center gap-2 py-1.5 bg-gray-50 border-b border-gray-200">
+          <el-button :icon="ZoomOut" circle size="small" text :disabled="previewScale <= 0.3" @click="previewScale = Math.max(0.3, previewScale - 0.1)" />
+          <span class="text-xs text-gray-500 w-12 text-center">{{ Math.round(previewScale * 100) }}%</span>
+          <el-button :icon="ZoomIn" circle size="small" text :disabled="previewScale >= 1.5" @click="previewScale = Math.min(1.5, previewScale + 0.1)" />
+          <el-divider direction="vertical" />
+          <el-button size="small" text @click="previewScale = 1">重置</el-button>
+          <el-button size="small" text @click="previewScale = fitScale">适应宽度</el-button>
+        </div>
+        <!-- 预览内容 -->
+        <div class="flex-1 overflow-auto p-6" ref="previewContainerRef">
+          <div class="flex justify-center" :style="{ transform: `scale(${previewScale})`, transformOrigin: 'top center' }">
+            <div class="bg-white shadow-lg" style="width: 210mm; min-height: 297mm;">
+              <component
+                :is="templateComponent"
+                :data="currentResume.modules"
+                :style-config="currentResume.style"
+                :module-order="currentResume.moduleOrder"
+                :hidden-modules="currentResume.hiddenModules"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -164,7 +175,7 @@ import BasicTemplate from '@/templates/BasicTemplate.vue'
 import ModernTemplate from '@/templates/ModernTemplate.vue'
 import ClassicTemplate from '@/templates/ClassicTemplate.vue'
 import { ElMessage } from 'element-plus'
-import { View } from '@element-plus/icons-vue'
+import { View, ZoomIn, ZoomOut } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -177,6 +188,10 @@ const showPreview = ref(false)
 const showTemplateDialog = ref(false)
 const showStylePanel = ref(false)
 const showScorePanel = ref(false)
+
+const previewScale = ref(1)
+const fitScale = ref(0.5)
+const previewContainerRef = ref(null)
 
 const tabOffset = ref(0)
 const canSlideRight = ref(false)
@@ -242,8 +257,20 @@ onMounted(() => {
   }
   // 深拷贝避免直接修改 store 数据
   currentResume.value = JSON.parse(JSON.stringify(resume))
-  nextTick(() => recalcSlide())
+  nextTick(() => {
+    recalcSlide()
+    calcFitScale()
+  })
 })
+
+function calcFitScale() {
+  const container = previewContainerRef.value
+  if (!container) return
+  const containerWidth = container.clientWidth - 48
+  const a4Width = 794
+  fitScale.value = Math.round((containerWidth / a4Width) * 10) / 10
+  previewScale.value = fitScale.value
+}
 
 // 防抖自动保存
 let saveTimer = null

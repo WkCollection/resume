@@ -22,6 +22,30 @@
       </el-form>
     </div>
 
+    <!-- AI 助手 -->
+    <div class="card p-6 mb-6">
+      <h2 class="text-base font-semibold text-gray-900 mb-4">AI 助手</h2>
+      <p class="text-sm text-gray-500 mb-4">
+        配置 DeepSeek API Key 后，可在编辑简历时使用 AI 辅助生成描述和自我评价。
+      </p>
+      <el-form label-position="top">
+        <el-form-item label="DeepSeek API Key">
+          <el-input
+            v-model="aiApiKey"
+            placeholder="请输入 DeepSeek API Key"
+            type="password"
+            show-password
+          />
+        </el-form-item>
+        <div class="flex items-center gap-3">
+          <el-button type="primary" size="small" @click="handleSaveApiKey">保存</el-button>
+          <span v-if="hasApiKey" class="text-xs text-green-600 flex items-center gap-1">
+            <el-icon><CircleCheckFilled /></el-icon>已配置
+          </span>
+        </div>
+      </el-form>
+    </div>
+
     <!-- 会员状态 -->
     <div class="card p-6 mb-6">
       <h2 class="text-base font-semibold text-gray-900 mb-4">会员状态</h2>
@@ -118,12 +142,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useResumeStore } from '@/stores/resume'
 import { membershipConfig } from '@/config/membership'
 import { exportBackup, downloadBackup, importBackup, restoreBackup, clearAllStorage } from '@/utils/storage'
+import { getApiKey, setApiKey } from '@/services/ai'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
@@ -133,6 +158,14 @@ const resumeStore = useResumeStore()
 const nickname = ref(authStore.currentUser?.nickname || '')
 const showVipDialog = ref(false)
 const fileInputRef = ref(null)
+
+const aiApiKey = ref(getApiKey())
+const hasApiKey = computed(() => !!aiApiKey.value.trim())
+
+function handleSaveApiKey() {
+  setApiKey(aiApiKey.value.trim())
+  ElMessage.success('API Key 已保存')
+}
 
 const vipFeatures = membershipConfig.vip.features
 
