@@ -4,19 +4,20 @@
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <router-link to="/" class="flex items-center space-x-2 no-underline">
-          <el-icon :size="28" class="text-primary-600"><Document /></el-icon>
+          <img src="/logo.svg" alt="职创在线" class="w-8 h-8" />
           <span class="text-xl font-bold text-gray-900">职创在线</span>
         </router-link>
 
         <!-- 桌面端导航 -->
-        <nav class="hidden md:flex items-center space-x-8">
+        <nav class="hidden md:flex items-center space-x-6">
           <a
             v-for="item in navItems"
             :key="item.label"
-            class="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors no-underline cursor-pointer"
+            class="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors no-underline cursor-pointer flex items-center gap-1"
             :class="{ 'text-primary-600': $route.path === item.path && !item.hash }"
             @click="handleNav(item)"
           >
+            <el-icon :size="16"><component :is="item.icon" /></el-icon>
             {{ item.label }}
           </a>
         </nav>
@@ -73,9 +74,10 @@
             <a
               v-for="item in navItems"
               :key="item.label"
-              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-600 no-underline cursor-pointer"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-600 no-underline cursor-pointer flex items-center gap-2"
               @click="handleNav(item)"
             >
+              <el-icon :size="16"><component :is="item.icon" /></el-icon>
               {{ item.label }}
             </a>
           </nav>
@@ -96,9 +98,9 @@ const authStore = useAuthStore()
 const showMobileMenu = ref(false)
 
 const navItems = [
-  { label: '首页', path: '/' },
-  { label: '模板中心', path: '/', hash: '#templates' },
-  { label: '开始制作', path: '/dashboard' }
+  { label: '首页', path: '/', icon: 'House' },
+  { label: '模板中心', path: '/', hash: '#templates', icon: 'Notebook' },
+  { label: '开始制作', path: '/dashboard', icon: 'Edit' }
 ]
 
 function handleNav(item) {

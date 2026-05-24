@@ -73,8 +73,9 @@ export const useResumeStore = defineStore('resume', () => {
   // 从本地存储加载简历
   function loadResumes() {
     const authStore = useAuthStore()
-    if (!authStore.currentUser) return
-    const key = `zc_resumes_${authStore.currentUser.id}`
+    const userId = authStore.effectiveUserId
+    if (!userId) return
+    const key = `zc_resumes_${userId}`
     const data = getStorageItem(key)
     resumes.value = data ? JSON.parse(data) : []
   }
@@ -82,16 +83,20 @@ export const useResumeStore = defineStore('resume', () => {
   // 保存简历到本地存储
   function saveResumes() {
     const authStore = useAuthStore()
-    if (!authStore.currentUser) return
-    const key = `zc_resumes_${authStore.currentUser.id}`
+    const userId = authStore.effectiveUserId
+    if (!userId) return
+    const key = `zc_resumes_${userId}`
     setStorageItem(key, JSON.stringify(resumes.value))
   }
 
   // 新建简历
   function createResume(templateId = 'basic', title = '未命名简历') {
     const authStore = useAuthStore()
-    // 免费用户最多 5 份简历
+    // 免费用户/游客最多 5 份简历
     if (!authStore.isVip && resumes.value.length >= 5) {
+      if (authStore.isGuest) {
+        return { success: false, message: '游客最多创建 5 份简历，请登录后继续', needLogin: true }
+      }
       return { success: false, message: '免费用户最多创建 5 份简历，请升级会员' }
     }
     const resume = createEmptyResume(templateId)
@@ -129,6 +134,9 @@ export const useResumeStore = defineStore('resume', () => {
   function duplicateResume(id) {
     const authStore = useAuthStore()
     if (!authStore.isVip && resumes.value.length >= 5) {
+      if (authStore.isGuest) {
+        return { success: false, message: '游客最多创建 5 份简历，请登录后继续', needLogin: true }
+      }
       return { success: false, message: '免费用户最多创建 5 份简历，请升级会员' }
     }
     const source = resumes.value.find(r => r.id === id)
@@ -162,6 +170,39 @@ export const useResumeStore = defineStore('resume', () => {
     return true
   }
 
+  // 迁移游客简历到正式用户
+  function migrateGuestResumes(userId) {
+    const authStore = useAuthStore()
+    const gid = authStore.guestId
+    if (!gid) return
+
+    const guestKey = `zc_resumes_${gid}`
+    const guestData = getStorageItem(guestKey)
+    if (!guestData) return
+
+    const guestResumes = JSON.parse(guestData)
+    if (!guestResumes.length) return
+
+    // 加载正式用户的简历
+    const userKey = `zc_resumes_${userId}`
+    const userData = getStorageItem(userKey)
+    const userResumes = userData ? JSON.parse(userData) : []
+
+    // 合并：跳过重复（按 ID 去重）
+    const existingIds = new Set(userResumes.map(r => r.id))
+    const newResumes = guestResumes.filter(r => !existingIds.has(r.id))
+    userResumes.unshift(...newResumes)
+
+    // 保存到正式用户
+    setStorageItem(userKey, JSON.stringify(userResumes))
+
+    // 清除游客数据
+    localStorage.removeItem(guestKey)
+
+    // 更新当前列表
+    resumes.value = userResumes
+  }
+
   return {
     resumes,
     userResumes,
@@ -173,6 +214,7 @@ export const useResumeStore = defineStore('resume', () => {
     updateResumeModules,
     duplicateResume,
     deleteResume,
-    renameResume
+    renameResume,
+    migrateGuestResumes
   }
 })

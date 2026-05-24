@@ -4,7 +4,7 @@
       <!-- 卡片 -->
       <div class="card p-8">
         <div class="text-center mb-8">
-          <el-icon :size="40" class="text-primary-600 mb-3"><Document /></el-icon>
+          <img src="/logo.svg" alt="职创在线" class="w-12 h-12 mx-auto mb-3" />
           <h2 class="text-2xl font-bold text-gray-900">
             {{ isLoginMode ? '欢迎回来' : '创建账号' }}
           </h2>
@@ -84,12 +84,14 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useResumeStore } from '@/stores/resume'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const resumeStore = useResumeStore()
 
 const formRef = ref(null)
 const isLoginMode = ref(true)
@@ -152,6 +154,11 @@ async function handleSubmit() {
     }
 
     if (result.success) {
+      // 迁移游客简历数据
+      if (authStore.guestId) {
+        resumeStore.migrateGuestResumes(authStore.currentUser.id)
+        authStore.clearGuest()
+      }
       ElMessage.success(result.message)
       // 跳转到之前的页面或控制台
       const redirect = route.query.redirect || '/dashboard'

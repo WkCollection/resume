@@ -1,5 +1,11 @@
 <template>
   <div class="container-app py-8">
+    <!-- 游客提示横幅 -->
+    <div v-if="authStore.isGuest" class="mb-6 p-4 bg-primary-50 border border-primary-100 rounded-lg flex items-center gap-3">
+      <el-icon :size="20" class="text-primary-500"><InfoFilled /></el-icon>
+      <span class="text-sm text-primary-700">登录后可永久保存简历并使用更多功能</span>
+    </div>
+
     <!-- 顶部操作区 -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
       <div>
@@ -10,6 +16,9 @@
         </p>
       </div>
       <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+        <el-button v-if="canCreateMore && pageIsFull" type="primary" plain @click="showCreateDialog = true">
+          <el-icon class="mr-1"><Plus /></el-icon>新建简历
+        </el-button>
         <el-button text @click="handleExportBackup">
           <el-icon class="mr-1"><Download /></el-icon>备份数据
         </el-button>
@@ -30,69 +39,97 @@
     </div>
 
     <!-- 简历卡片列表 -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
-        v-for="resume in resumeStore.userResumes"
-        :key="resume.id"
-        class="card-hover group cursor-pointer"
-      >
-        <!-- 缩略图区域 -->
+    <div v-else>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
-          ref="thumbRefs"
-          class="relative overflow-hidden cursor-pointer"
-          :style="{ paddingBottom: '141%' }"
-          @click="openEditor(resume.id)"
+          v-for="resume in pagedResumes"
+          :key="resume.id"
+          class="card-hover group cursor-pointer"
         >
-          <div class="absolute inset-0 overflow-hidden">
-            <div :ref="el => setThumbScale(el, resume.id)" style="width: 794px; transform-origin: top left;">
-              <component
-                :is="getTemplateComponent(resume.templateId)"
-                :data="resume.modules"
-                :style-config="resume.style"
-                :module-order="resume.moduleOrder"
-                :hidden-modules="resume.hiddenModules"
-              />
+          <!-- 缩略图区域 -->
+          <div
+            ref="thumbRefs"
+            class="relative overflow-hidden cursor-pointer"
+            :style="{ paddingBottom: '141%' }"
+            @click="openEditor(resume.id)"
+          >
+            <div class="absolute inset-0 overflow-hidden">
+              <div :ref="el => setThumbScale(el, resume.id)" style="width: 794px; transform-origin: top left;">
+                <component
+                  :is="getTemplateComponent(resume.templateId)"
+                  :data="resume.modules"
+                  :style-config="resume.style"
+                  :module-order="resume.moduleOrder"
+                  :hidden-modules="resume.hiddenModules"
+                />
+              </div>
+            </div>
+            <!-- 悬浮操作 -->
+            <div class="absolute inset-0 bg-primary-600/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-3 pointer-events-none group-hover:pointer-events-auto">
+              <el-button round size="small" class="!bg-white !text-primary-700" @click.stop="openEditor(resume.id)">
+                编辑
+              </el-button>
+              <el-button round size="small" class="!bg-white !text-primary-700" @click.stop="openPreview(resume.id)">
+                预览
+              </el-button>
             </div>
           </div>
-          <!-- 悬浮操作 -->
-          <div class="absolute inset-0 bg-primary-600/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-3 pointer-events-none group-hover:pointer-events-auto">
-            <el-button round size="small" class="!bg-white !text-primary-700" @click.stop="openEditor(resume.id)">
-              编辑
-            </el-button>
-            <el-button round size="small" class="!bg-white !text-primary-700" @click.stop="openPreview(resume.id)">
-              预览
-            </el-button>
+
+          <!-- 信息区域 -->
+          <div class="p-4">
+            <h3 class="font-semibold text-gray-900 truncate">{{ resume.title }}</h3>
+            <p class="text-xs text-gray-400 mt-1">
+              更新于 {{ formatDate(resume.updatedAt) }}
+            </p>
+            <div class="mt-3 flex justify-between items-center">
+              <el-tag size="small" type="info" effect="plain">
+                {{ getTemplateName(resume.templateId) }}
+              </el-tag>
+              <el-dropdown trigger="click" @command="(cmd) => handleCommand(cmd, resume)">
+                <el-button :icon="MoreFilled" circle size="small" text />
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="rename">
+                      <el-icon><Edit /></el-icon>重命名
+                    </el-dropdown-item>
+                    <el-dropdown-item command="duplicate">
+                      <el-icon><CopyDocument /></el-icon>复制
+                    </el-dropdown-item>
+                    <el-dropdown-item command="delete" divided class="!text-red-500">
+                      <el-icon><Delete /></el-icon>删除
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
           </div>
         </div>
 
-        <!-- 信息区域 -->
-        <div class="p-4">
-          <h3 class="font-semibold text-gray-900 truncate">{{ resume.title }}</h3>
-          <p class="text-xs text-gray-400 mt-1">
-            更新于 {{ formatDate(resume.updatedAt) }}
-          </p>
-          <div class="mt-3 flex justify-between items-center">
-            <el-tag size="small" type="info" effect="plain">
-              {{ getTemplateName(resume.templateId) }}
-            </el-tag>
-            <el-dropdown trigger="click" @command="(cmd) => handleCommand(cmd, resume)">
-              <el-button :icon="MoreFilled" circle size="small" text />
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="rename">
-                    <el-icon><Edit /></el-icon>重命名
-                  </el-dropdown-item>
-                  <el-dropdown-item command="duplicate">
-                    <el-icon><CopyDocument /></el-icon>复制
-                  </el-dropdown-item>
-                  <el-dropdown-item command="delete" divided class="!text-red-500">
-                    <el-icon><Delete /></el-icon>删除
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+        <!-- 新建简历卡片 -->
+        <div
+          v-if="canCreateMore && !pageIsFull"
+          class="border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 transition-all group"
+          :style="{ paddingBottom: '141%' }"
+          style="position: relative;"
+          @click="showCreateDialog = true"
+        >
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <el-icon :size="40" class="text-gray-300 group-hover:text-primary-400 transition-colors"><Plus /></el-icon>
+            <span class="mt-2 text-sm text-gray-400 group-hover:text-primary-500 transition-colors">新建简历</span>
           </div>
         </div>
+      </div>
+
+      <!-- 分页 -->
+      <div v-if="totalPages > 1" class="flex justify-center mt-8">
+        <el-pagination
+          v-model:current-page="currentPage"
+          :page-size="pageSize"
+          :total="resumeStore.resumeCount"
+          layout="prev, pager, next"
+          background
+          @current-change="handlePageChange"
+        />
       </div>
     </div>
 
@@ -107,19 +144,17 @@
             <div
               v-for="tpl in templateList"
               :key="tpl.id"
-              class="border-2 rounded-lg p-3 cursor-pointer text-center transition-all"
+              class="border-2 rounded-lg p-3 cursor-pointer text-center transition-all relative"
               :class="createForm.templateId === tpl.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'"
               @click="createForm.templateId = tpl.id"
             >
+              <span v-if="!tpl.isFree && !authStore.isVip" class="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow">VIP</span>
               <el-icon :size="24" class="mb-1" :class="createForm.templateId === tpl.id ? 'text-primary-600' : 'text-gray-400'">
-                <Document />
+                <component :is="tplIcons[tpl.id]" />
               </el-icon>
               <p class="text-xs font-medium" :class="createForm.templateId === tpl.id ? 'text-primary-600' : 'text-gray-600'">
                 {{ tpl.name }}
               </p>
-              <el-tag v-if="!tpl.isFree && !authStore.isVip" type="warning" size="small" effect="dark" class="mt-1">
-                VIP
-              </el-tag>
             </div>
           </div>
         </el-form-item>
@@ -142,12 +177,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useResumeStore } from '@/stores/resume'
 import { templates as templateList } from '@/config/templates'
-import { MoreFilled } from '@element-plus/icons-vue'
+import { MoreFilled, Plus, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { exportBackup, downloadBackup, importBackup, restoreBackup } from '@/utils/storage'
 import BasicTemplate from '@/templates/BasicTemplate.vue'
@@ -155,6 +190,7 @@ import ModernTemplate from '@/templates/ModernTemplate.vue'
 import ClassicTemplate from '@/templates/ClassicTemplate.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const resumeStore = useResumeStore()
 
@@ -167,9 +203,42 @@ const createForm = reactive({
   title: '',
   templateId: 'basic'
 })
+
+// 分页
+const pageSize = 6
+const currentPage = ref(1)
+const totalPages = computed(() => Math.ceil(resumeStore.resumeCount / pageSize))
+const pagedResumes = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return resumeStore.userResumes.slice(start, start + pageSize)
+})
+function handlePageChange(page) {
+  currentPage.value = page
+  nextTick(() => {
+    document.querySelectorAll('.card-hover [style*="transform-origin"]').forEach(el => {
+      const parent = el.parentElement
+      if (!parent) return
+      el.style.transform = `scale(${parent.clientWidth / 794})`
+    })
+  })
+}
+
+const tplIcons = {
+  basic: 'Document',
+  modern: 'Grid',
+  classic: 'Briefcase'
+}
+
 const createRules = {
   title: [{ required: true, message: '请输入简历名称', trigger: 'blur' }]
 }
+
+const canCreateMore = computed(() => {
+  if (authStore.isVip) return true
+  return resumeStore.resumeCount < 5
+})
+
+const pageIsFull = computed(() => pagedResumes.value.length >= pageSize)
 
 // 重命名弹窗
 const showRenameDialog = ref(false)
@@ -238,6 +307,15 @@ async function handleCreate() {
     createForm.title = ''
     createForm.templateId = 'basic'
     resumeStore.loadResumes()
+    currentPage.value = 1
+  } else if (result.needLogin) {
+    ElMessageBox.confirm('游客最多创建 5 份简历，登录后可继续创建', '需要登录', {
+      confirmButtonText: '去登录',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(() => {
+      router.push({ path: '/login', query: { redirect: route.fullPath } })
+    }).catch(() => {})
   } else {
     ElMessage.error(result.message)
   }
@@ -273,6 +351,14 @@ function handleDuplicate(id) {
   const result = resumeStore.duplicateResume(id)
   if (result.success) {
     ElMessage.success('简历已复制')
+  } else if (result.needLogin) {
+    ElMessageBox.confirm('游客最多创建 5 份简历，登录后可继续创建', '需要登录', {
+      confirmButtonText: '去登录',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(() => {
+      router.push({ path: '/login', query: { redirect: route.fullPath } })
+    }).catch(() => {})
   } else {
     ElMessage.error(result.message)
   }
@@ -290,6 +376,10 @@ function handleDelete(resume) {
 }
 
 function handleExportBackup() {
+  if (authStore.isGuest) {
+    ElMessage.warning('请先登录后再备份数据')
+    return
+  }
   if (!authStore.currentUser) return
   const backup = exportBackup(authStore.currentUser.id)
   downloadBackup(backup)

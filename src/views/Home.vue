@@ -7,38 +7,151 @@
         <div class="absolute bottom-10 right-20 w-96 h-96 bg-accent-400 rounded-full blur-3xl"></div>
       </div>
       <div class="container-app relative py-20 md:py-28">
-        <div class="max-w-3xl">
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            专业简历<br />
-            <span class="text-primary-200">一键生成</span>
-          </h1>
-          <p class="mt-6 text-lg md:text-xl text-primary-100 max-w-xl leading-relaxed">
-            多行业商用模板、可视化编辑、高清PDF导出。零门槛打造让HR眼前一亮的专业简历。
-          </p>
-          <div class="mt-8 flex flex-wrap gap-4">
-            <el-button
-              type="primary"
-              size="large"
-              round
-              @click="handleStartCreate"
-              class="!bg-white !text-primary-700 !font-semibold hover:!bg-primary-50"
-            >
-              <el-icon class="mr-1"><Edit /></el-icon>
-              免费开始制作
-            </el-button>
-            <el-button
-              size="large"
-              round
-              class="!bg-white !text-primary-700 !font-semibold hover:!bg-primary-50"
-              @click="scrollToTemplates"
-            >
-              浏览模板
-            </el-button>
+        <div class="flex items-center gap-12 lg:gap-16">
+          <!-- 左侧文字 -->
+          <div class="flex-1 min-w-0">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              专业简历<br />
+              <span class="text-primary-200">{{ typedText }}<span class="animate-blink">|</span></span>
+            </h1>
+            <p class="mt-6 text-lg md:text-xl text-primary-100 max-w-xl leading-relaxed">
+              多行业商用模板、可视化编辑、高清PDF导出。零门槛打造让HR眼前一亮的专业简历。
+            </p>
+            <div class="mt-8 flex flex-wrap gap-4">
+              <el-button
+                type="primary"
+                size="large"
+                round
+                @click="handleStartCreate"
+                class="!bg-white !text-primary-700 !font-semibold hover:!bg-primary-50"
+              >
+                <el-icon class="mr-1"><Edit /></el-icon>
+                免费开始制作
+              </el-button>
+              <el-button
+                size="large"
+                round
+                class="!bg-white !text-primary-700 !font-semibold hover:!bg-primary-50"
+                @click="scrollToTemplates"
+              >
+                浏览模板
+              </el-button>
+            </div>
+            <div class="mt-10 flex items-center space-x-6 text-sm text-primary-200">
+              <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>免费使用</span>
+              <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>无需注册即可体验</span>
+              <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>数据本地安全存储</span>
+            </div>
           </div>
-          <div class="mt-10 flex items-center space-x-6 text-sm text-primary-200">
-            <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>免费使用</span>
-            <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>无需注册即可体验</span>
-            <span class="flex items-center"><el-icon class="mr-1"><Check /></el-icon>数据本地安全存储</span>
+
+          <!-- 右侧 3D 轮播 -->
+          <div class="hidden lg:block flex-shrink-0 w-[320px] xl:w-[380px]">
+            <div class="carousel-scene">
+              <div class="carousel-track" :style="{ transform: `rotateY(${-activeSlide * 120}deg)` }">
+                <!-- 经典简约 -->
+                <div class="carousel-card">
+                  <div class="bg-white rounded-lg shadow-2xl overflow-hidden" style="width:240px; height:320px; padding:20px;">
+                    <div class="h-2.5 w-1/3 bg-gray-800 rounded-sm mx-auto mb-2"></div>
+                    <div class="flex justify-center gap-3 mb-3">
+                      <div class="h-1.5 w-12 bg-gray-300 rounded-full"></div>
+                      <div class="h-1.5 w-12 bg-gray-300 rounded-full"></div>
+                    </div>
+                    <div class="border-t-2 border-blue-500 mb-2 pt-2">
+                      <div class="h-1.5 w-1/4 bg-blue-500 rounded-full mb-1.5"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1"></div>
+                      <div class="flex gap-4 mb-2">
+                        <div class="flex-1"><div class="h-1 bg-gray-700 rounded-full mb-1"></div><div class="h-1 w-2/3 bg-gray-300 rounded-full"></div></div>
+                        <div class="flex-1"><div class="h-1 bg-gray-700 rounded-full mb-1"></div><div class="h-1 w-2/3 bg-gray-300 rounded-full"></div></div>
+                      </div>
+                    </div>
+                    <div class="border-t-2 border-blue-500 mb-2 pt-2">
+                      <div class="h-1.5 w-1/4 bg-blue-500 rounded-full mb-1.5"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1 w-4/5"></div>
+                      <div class="h-1 bg-gray-200 rounded-full w-3/5"></div>
+                    </div>
+                    <div class="border-t-2 border-blue-500 pt-2">
+                      <div class="h-1.5 w-1/4 bg-blue-500 rounded-full mb-1.5"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1"></div>
+                      <div class="h-1 bg-gray-200 rounded-full w-2/3"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 现代双栏 -->
+                <div class="carousel-card">
+                  <div class="bg-white rounded-lg shadow-2xl overflow-hidden" style="width:240px; height:320px;">
+                    <div class="flex h-full">
+                      <div class="w-[38%] bg-blue-600 p-3 flex flex-col">
+                        <div class="w-8 h-8 rounded-full bg-white/30 mx-auto mb-2"></div>
+                        <div class="h-1.5 w-3/4 bg-white/60 rounded-full mb-2 mx-auto"></div>
+                        <div class="h-1 bg-white/30 rounded-full mb-1"></div>
+                        <div class="h-1 bg-white/30 rounded-full mb-1 w-3/4"></div>
+                        <div class="h-1 bg-white/30 rounded-full mb-3 w-1/2"></div>
+                        <div class="h-1.5 w-1/2 bg-white/50 rounded-full mb-1.5"></div>
+                        <div class="bg-white/20 rounded-full h-1 mb-1"><div class="bg-white rounded-full h-1 w-3/4"></div></div>
+                        <div class="bg-white/20 rounded-full h-1 mb-1"><div class="bg-white rounded-full h-1 w-1/2"></div></div>
+                      </div>
+                      <div class="flex-1 p-3">
+                        <div class="h-1.5 w-1/3 bg-blue-600 rounded-full mb-1"></div>
+                        <div class="border-b-2 border-blue-200 mb-2 pb-1">
+                          <div class="h-1 bg-gray-300 rounded-full mb-1"></div>
+                          <div class="h-1 bg-gray-200 rounded-full w-4/5 mb-1"></div>
+                          <div class="h-1 bg-gray-200 rounded-full w-3/5"></div>
+                        </div>
+                        <div class="h-1.5 w-1/3 bg-blue-600 rounded-full mb-1"></div>
+                        <div class="border-b-2 border-blue-200 mb-2 pb-1">
+                          <div class="h-1 bg-gray-300 rounded-full mb-1"></div>
+                          <div class="h-1 bg-gray-200 rounded-full w-4/5 mb-1"></div>
+                        </div>
+                        <div class="h-1.5 w-1/3 bg-blue-600 rounded-full mb-1"></div>
+                        <div class="h-1 bg-gray-200 rounded-full mb-1 w-4/5"></div>
+                        <div class="h-1 bg-gray-200 rounded-full w-3/5"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 商务精英 -->
+                <div class="carousel-card">
+                  <div class="bg-white rounded-lg shadow-2xl overflow-hidden" style="width:240px; height:320px;">
+                    <div class="bg-blue-600 p-3 rounded-t-lg">
+                      <div class="flex justify-between items-start">
+                        <div>
+                          <div class="h-2 w-16 bg-white/80 rounded-full mb-1.5"></div>
+                          <div class="h-1 w-20 bg-white/40 rounded-full"></div>
+                        </div>
+                        <div class="text-right">
+                          <div class="h-1 w-14 bg-white/40 rounded-full mb-1 ml-auto"></div>
+                          <div class="h-1 w-10 bg-white/30 rounded-full ml-auto"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-3">
+                      <div class="flex items-center gap-1 mb-1.5">
+                        <div class="w-0.5 h-2.5 bg-blue-600 rounded"></div>
+                        <div class="h-1.5 w-1/4 bg-blue-600 rounded-full"></div>
+                      </div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1 w-3/4"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-3 w-1/2"></div>
+                      <div class="flex items-center gap-1 mb-1.5">
+                        <div class="w-0.5 h-2.5 bg-blue-600 rounded"></div>
+                        <div class="h-1.5 w-1/4 bg-blue-600 rounded-full"></div>
+                      </div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1 w-4/5"></div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-3 w-3/5"></div>
+                      <div class="flex items-center gap-1 mb-1.5">
+                        <div class="w-0.5 h-2.5 bg-blue-600 rounded"></div>
+                        <div class="h-1.5 w-1/4 bg-blue-600 rounded-full"></div>
+                      </div>
+                      <div class="h-1 bg-gray-200 rounded-full mb-1"></div>
+                      <div class="h-1 bg-gray-200 rounded-full w-2/3"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -239,13 +352,13 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           <!-- 免费版 -->
-          <div class="card p-8">
+          <div class="card p-8 flex flex-col">
             <h3 class="text-lg font-bold text-gray-900">免费版</h3>
             <div class="mt-4 mb-6">
               <span class="text-4xl font-bold text-gray-900">¥0</span>
               <span class="text-gray-500">/永久</span>
             </div>
-            <ul class="space-y-3 mb-8">
+            <ul class="space-y-3 mb-8 flex-1">
               <li v-for="f in membershipConfig.free.features" :key="f" class="flex items-start text-sm text-gray-600">
                 <el-icon class="text-green-500 mr-2 mt-0.5"><Check /></el-icon>
                 {{ f }}
@@ -255,14 +368,14 @@
           </div>
 
           <!-- VIP 版 -->
-          <div class="card p-8 ring-2 ring-primary-500 relative">
-            <el-tag type="warning" effect="dark" class="absolute -top-3 left-6">推荐</el-tag>
+          <div class="card p-8 ring-2 ring-primary-500 relative flex flex-col">
+            <el-tag type="warning" effect="dark" class="absolute top-0 left-6">推荐</el-tag>
             <h3 class="text-lg font-bold text-gray-900">VIP 会员</h3>
             <div class="mt-4 mb-6">
               <span class="text-4xl font-bold text-primary-600">¥29.9</span>
               <span class="text-gray-500">/月</span>
             </div>
-            <ul class="space-y-3 mb-8">
+            <ul class="space-y-3 mb-8 flex-1">
               <li v-for="f in membershipConfig.vip.features" :key="f" class="flex items-start text-sm text-gray-600">
                 <el-icon class="text-primary-500 mr-2 mt-0.5"><Check /></el-icon>
                 {{ f }}
@@ -296,6 +409,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { templates as templateList } from '@/config/templates'
 import { membershipConfig } from '@/config/membership'
@@ -303,6 +417,50 @@ import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// 打字机效果
+const typedText = ref('')
+const phrases = ['一键生成', '高效制作', '轻松导出', '极速创建']
+let phraseIndex = 0
+let charIndex = 0
+let isDeleting = false
+let typeTimer = null
+
+function typeEffect() {
+  const currentPhrase = phrases[phraseIndex]
+  if (!isDeleting) {
+    typedText.value = currentPhrase.substring(0, charIndex + 1)
+    charIndex++
+    if (charIndex === currentPhrase.length) {
+      typeTimer = setTimeout(() => { isDeleting = true; typeEffect() }, 2000)
+      return
+    }
+    typeTimer = setTimeout(typeEffect, 120)
+  } else {
+    typedText.value = currentPhrase.substring(0, charIndex - 1)
+    charIndex--
+    if (charIndex === 0) {
+      isDeleting = false
+      phraseIndex = (phraseIndex + 1) % phrases.length
+      typeTimer = setTimeout(typeEffect, 400)
+      return
+    }
+    typeTimer = setTimeout(typeEffect, 60)
+  }
+}
+
+onMounted(() => { typeEffect() })
+onUnmounted(() => { clearTimeout(typeTimer); clearInterval(carouselTimer) })
+
+// 3D 轮播
+const activeSlide = ref(0)
+let carouselTimer = null
+
+onMounted(() => {
+  carouselTimer = setInterval(() => {
+    activeSlide.value = (activeSlide.value + 1) % 3
+  }, 3000)
+})
 
 const features = [
   {
@@ -336,11 +494,10 @@ const features = [
 ]
 
 function handleStartCreate() {
-  if (authStore.isLoggedIn) {
-    router.push('/dashboard')
-  } else {
-    router.push('/login')
+  if (!authStore.isLoggedIn) {
+    authStore.ensureGuest()
   }
+  router.push('/dashboard')
 }
 
 function handleUseTemplate(tpl) {
@@ -362,3 +519,55 @@ function scrollToTemplates() {
   }
 }
 </script>
+
+<style scoped>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 0.8s step-end infinite;
+}
+
+/* 3D 轮播 */
+.carousel-scene {
+  perspective: 1000px;
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-track {
+  width: 240px;
+  height: 320px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-card {
+  position: absolute;
+  width: 240px;
+  height: 360px;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backface-visibility: hidden;
+}
+
+.carousel-card:nth-child(1) {
+  transform: rotateY(0deg) translateZ(220px);
+}
+
+.carousel-card:nth-child(2) {
+  transform: rotateY(120deg) translateZ(220px);
+}
+
+.carousel-card:nth-child(3) {
+  transform: rotateY(240deg) translateZ(220px);
+}
+</style>

@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { encryptData, decryptData } from '@/utils/encrypt'
-import { getStorageItem, setStorageItem, removeStorageItem } from '@/utils/storage'
+import { getStorageItem, setStorageItem } from '@/utils/storage'
 
 export const useAuthStore = defineStore('auth', () => {
   // 状态
   const currentUser = ref(null)
   const isLoggedIn = ref(false)
+  const guestId = ref(null)
 
   // 计算属性
   const isVip = computed(() => {
@@ -16,6 +17,22 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const username = computed(() => currentUser.value?.nickname || currentUser.value?.username || '')
+
+  const isGuest = computed(() => !isLoggedIn.value && !!guestId.value)
+
+  const effectiveUserId = computed(() => currentUser.value?.id || guestId.value || null)
+
+  // 初始化游客 ID
+  function ensureGuest() {
+    if (guestId.value) return guestId.value
+    guestId.value = 'guest_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+    return guestId.value
+  }
+
+  // 清除游客 ID
+  function clearGuest() {
+    guestId.value = null
+  }
 
   // 获取所有用户列表
   function getAllUsers() {
@@ -50,8 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
     users.push(newUser)
     saveAllUsers(users)
     // 自动登录
-    const { password: _, ...userInfo } = newUser
-    currentUser.value = { ...userInfo, password: _ }
+    currentUser.value = { ...newUser }
     isLoggedIn.value = true
     return { success: true, message: '注册成功' }
   }
@@ -67,7 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (decryptedPwd !== password) {
       return { success: false, message: '密码错误' }
     }
-    currentUser.value = user
+    currentUser.value = { ...user }
     isLoggedIn.value = true
     return { success: true, message: '登录成功' }
   }
@@ -99,8 +115,13 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     currentUser,
     isLoggedIn,
+    guestId,
     isVip,
     username,
+    isGuest,
+    effectiveUserId,
+    ensureGuest,
+    clearGuest,
     register,
     login,
     logout,
@@ -109,6 +130,6 @@ export const useAuthStore = defineStore('auth', () => {
 }, {
   persist: {
     key: 'zc_auth',
-    pick: ['currentUser', 'isLoggedIn']
+    pick: ['currentUser', 'isLoggedIn', 'guestId']
   }
 })

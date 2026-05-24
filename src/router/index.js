@@ -23,7 +23,7 @@ const routes = [
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
-        meta: { title: '简历仓库 - 职创在线', requiresAuth: true }
+        meta: { title: '简历仓库 - 职创在线' }
       },
       {
         path: 'settings',
@@ -35,13 +35,13 @@ const routes = [
         path: 'editor/:id',
         name: 'Editor',
         component: () => import('@/views/Editor.vue'),
-        meta: { title: '编辑简历 - 职创在线', requiresAuth: true }
+        meta: { title: '编辑简历 - 职创在线' }
       },
       {
         path: 'preview/:id',
         name: 'Preview',
         component: () => import('@/views/Preview.vue'),
-        meta: { title: '预览简历 - 职创在线', requiresAuth: true }
+        meta: { title: '预览简历 - 职创在线' }
       }
     ]
   },

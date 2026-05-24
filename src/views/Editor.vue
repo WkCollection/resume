@@ -131,17 +131,17 @@
         <div
           v-for="tpl in templateList"
           :key="tpl.id"
-          class="border-2 rounded-lg p-4 cursor-pointer text-center transition-all"
+          class="border-2 rounded-lg p-4 cursor-pointer text-center transition-all relative"
           :class="currentResume.templateId === tpl.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'"
           @click="switchTemplate(tpl.id)"
         >
+          <span v-if="!tpl.isFree" class="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow">VIP</span>
           <el-icon :size="32" class="mb-2" :class="currentResume.templateId === tpl.id ? 'text-primary-600' : 'text-gray-400'">
-            <Document />
+            <component :is="tplIcons[tpl.id]" />
           </el-icon>
           <p class="text-sm font-medium" :class="currentResume.templateId === tpl.id ? 'text-primary-600' : 'text-gray-600'">
             {{ tpl.name }}
           </p>
-          <el-tag v-if="!tpl.isFree" type="warning" size="small" effect="dark" class="mt-1">VIP</el-tag>
         </div>
       </div>
     </el-dialog>
@@ -212,6 +212,12 @@ const templateMap = {
   basic: BasicTemplate,
   modern: ModernTemplate,
   classic: ClassicTemplate
+}
+
+const tplIcons = {
+  basic: 'Document',
+  modern: 'Grid',
+  classic: 'Briefcase'
 }
 
 const templateComponent = computed(() => {
