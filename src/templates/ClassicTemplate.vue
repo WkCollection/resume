@@ -53,12 +53,12 @@
     </header>
 
     <!-- 内容区域 -->
-    <div class="px-10 py-7">
+    <div class="px-10 py-8">
       <template v-for="modKey in orderedModules" :key="modKey">
         <!-- 教育经历 -->
-        <section v-if="modKey === 'education' && isVisible('education') && data.education?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'education' && isVisible('education') && data.education?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             教育经历
           </h2>
           <div v-for="(edu, i) in data.education" :key="i" class="mb-3 pl-4">
@@ -75,13 +75,13 @@
         </section>
 
         <!-- 工作经历 -->
-        <section v-if="modKey === 'workExperience' && isVisible('workExperience') && data.workExperience?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'workExperience' && isVisible('workExperience') && data.workExperience?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             工作经历
           </h2>
-          <div v-for="(work, i) in data.workExperience" :key="i" class="mb-4 pl-4 border-l-2 relative" :style="{ borderColor: themeColor + '25' }">
-            <div class="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: themeColor }"></div>
+          <div v-for="(work, i) in data.workExperience" :key="i" class="mb-5 pl-4 border-l-2 relative" :style="{ borderColor: themeColor + '25' }">
+            <div class="absolute left-[-5px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: themeColor }"></div>
             <div class="flex justify-between items-baseline">
               <div>
                 <span class="font-semibold text-sm text-gray-900">{{ work.company }}</span>
@@ -94,13 +94,13 @@
         </section>
 
         <!-- 项目经验 -->
-        <section v-if="modKey === 'projects' && isVisible('projects') && data.projects?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'projects' && isVisible('projects') && data.projects?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             项目经验
           </h2>
-          <div v-for="(proj, i) in data.projects" :key="i" class="mb-4 pl-4 border-l-2 relative" :style="{ borderColor: themeColor + '25' }">
-            <div class="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: themeColor }"></div>
+          <div v-for="(proj, i) in data.projects" :key="i" class="mb-5 pl-4 border-l-2 relative" :style="{ borderColor: themeColor + '25' }">
+            <div class="absolute left-[-5px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" :style="{ backgroundColor: themeColor }"></div>
             <div class="flex justify-between items-baseline">
               <div>
                 <span class="font-semibold text-sm text-gray-900">{{ proj.name }}</span>
@@ -113,9 +113,9 @@
         </section>
 
         <!-- 技能特长 -->
-        <section v-if="modKey === 'skills' && isVisible('skills') && data.skills?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'skills' && isVisible('skills') && data.skills?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             技能特长
           </h2>
           <div class="grid grid-cols-2 gap-x-6 gap-y-2 pl-4">
@@ -130,9 +130,9 @@
         </section>
 
         <!-- 证书资质 -->
-        <section v-if="modKey === 'certificates' && isVisible('certificates') && data.certificates?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'certificates' && isVisible('certificates') && data.certificates?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             证书资质
           </h2>
           <div class="grid grid-cols-2 gap-2 text-sm pl-4">
@@ -144,9 +144,9 @@
         </section>
 
         <!-- 作品集 -->
-        <section v-if="modKey === 'portfolios' && isVisible('portfolios') && data.portfolios?.length" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'portfolios' && isVisible('portfolios') && data.portfolios?.length" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             作品集
           </h2>
           <div v-for="(port, i) in data.portfolios" :key="i" class="mb-2 text-sm pl-4">
@@ -157,18 +157,15 @@
         </section>
 
         <!-- 自我评价 -->
-        <section v-if="modKey === 'selfEvaluation' && isVisible('selfEvaluation') && data.selfEvaluation" class="mb-6">
-          <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
+        <section v-if="modKey === 'selfEvaluation' && isVisible('selfEvaluation') && data.selfEvaluation" class="mb-7">
+          <h2 class="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-2 h-5 rounded-sm" :style="{ backgroundColor: themeColor }"></span>
             自我评价
           </h2>
           <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed pl-4">{{ data.selfEvaluation }}</p>
         </section>
       </template>
     </div>
-
-    <!-- 底部装饰线 -->
-    <div class="h-1" :style="{ backgroundColor: themeColor }"></div>
   </div>
 </template>
 
